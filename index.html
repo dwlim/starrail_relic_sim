@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="rollRelics()">Roll Relics</button>
+<div id="relic_results"></div>
+
+</body>
+</html>
+
+
+<script>
+  function rollRelics() {
+    document.getElementById("relic_results").innerHTML = generateRelic();
+  }
+
+  function weighted_random(items, weights) {
+    var i;
+
+    for (i = 1; i < weights.length; i++)
+        weights[i] += weights[i - 1];
+    
+    var random = Math.random() * weights[weights.length - 1];
+    
+    for (i = 0; i < weights.length; i++)
+        if (weights[i] > random)
+            break;
+    
+    return items[i];
+  }
+
+  function accumulate(numbers) {
+    let accm  = [];
+    let total = 0;
+    for (let n of numbers) {
+        total += n;
+        accm.push(total)
+    }
+    return accm;
+  }
+
+  function bisect_left(arr, target) {
+    let n = arr.length;
+    let l = 0;
+    let r = n - 1;
+    while (l <= r) {
+        let m = Math.floor((l + r) / 2);
+        if (arr[m] < target) {
+            l = m + 1;
+        } else if (arr[m] >= target) {
+            r = m - 1;
+        } 
+    }
+    return l;
+  }
+
+  function wchoice(population, weights, accumulated) {
+    let acm = (accumulated) ? weights : accumulate(weights);
+    let rnd = Math.random() * acm[acm.length - 1];
+
+    let idx = bisect_left(acm, rnd);
+
+    return [idx, population[idx]];
+  }
+
+  function wsample(population, weights, k) {
+    let sample  = [];
+    let indices = [];
+    let index   = 0;
+    let choice  = null;
+    let acmwts  = accumulate(weights);
+
+    for (let i=0; i < k; i++) {
+        [index, choice] = wchoice(population, acmwts, true);
+        sample.push(choice);
+        indices.push(index);
+
+        // The below updates the accumulated weights as if the member
+        // at `index` has a weight of 0, eliminating it from future draws.
+        // This portion could be optimized. See note below.
+        let ndecr = weights[index];
+        for (; index < acmwts.length; index++) {
+            acmwts[index] -= ndecr;
+        }
+    }
+    return [indices, sample];
+  }
+
+  function generateRelic() {
+    let relics = [];
+    let num_pieces = Math.random() < 0.108 ? 3 : 2;
+    let pieces = ["Hat", "Glove", "Body", "Boots"]; //, "Orb", "Rope"];
+    let main_stat = 
+      [[["Hp"], [1]], 
+      [["Atk"], [1]], 
+      [["Hp%", "Atk%", "Def%", "CR", "CD", "Heal", "EHR", "ER"], [20, 20, 20, 10, 10, 10, 10]], 
+      [["Hp", "Atk", "Def", "Spd"], [27.5, 30, 30, 12.5]]];
+
+    let sub_stat = ["Hp", "Atk", "Def", "Hp%", "Atk%", "Def%", "Spd", "CR", "CD", "EHR", "ER", "BE"];
+    let sub_weight = 
+    [[[0, 11, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]],
+     [[11, 0, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]], 
+     [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9], 
+      [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9], 
+      [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
+      [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 0, 6.22, 8.61, 8.61, 8.61],
+      [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 6.22, 0, 8.61, 8.61, 8.61],
+      [9.91, 9.91, 9.91, 9.91, 9.91, 9.91, 4.5, 5.86, 5.86, 8.11, 8.11, 8.11],
+      [10.78, 10.78, 10.78, 10.78, 10.78, 10.78, 4.9, 6.37, 6.37, 0, 8.82, 8.82]
+     ], 
+     [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9],
+      [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9],
+      [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
+      [10.38, 10.38, 10.38, 10.38, 10.38, 10.38, 0, 6.13, 6.13, 8.49, 8.49, 8.49]]]
+    for (let i = 0; i < num_pieces; i++) {
+      let piece = Math.floor(Math.random() * pieces.length);
+      let main = weighted_random(main_stat[piece][0], main_stat[piece][1]);
+      let main_index = main_stat[piece][0].indexOf(main);
+      let sub = wsample(sub_stat, sub_weight[piece][main_index], Math.random() < .8 ? 3 : 4)[1];
+      relics += "Piece: " + pieces[piece] + "<br>Main Stat: " + main + "<br>Sub Stats: " + sub + "<br><br>";
+    } 
+    return relics;
+  }
+
+  </script>
