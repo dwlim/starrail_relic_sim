@@ -117,7 +117,8 @@
       let main = weighted_random(main_stat[piece][0], main_stat[piece][1]);
       let main_index = main_stat[piece][0].indexOf(main);
       let sub = wsample(sub_stat, sub_weight[piece][main_index], Math.random() < .8 ? 3 : 4)[1];
-      relics += "Piece: " + pieces[piece] + "<br>Main Stat: " + main + "<br>Sub Stats: " + sub + "<br><br>";
+      let set = Math.random() < .5 ? "1" : "2";
+      relics += "Piece: " + pieces[piece] + "<br>Set: " + set + "<br>Main Stat: " + main + "<br>Sub Stats: " + sub + "<br><br>";
     } 
     return relics;
   }
