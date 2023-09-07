@@ -112,13 +112,32 @@
       [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9],
       [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
       [10.38, 10.38, 10.38, 10.38, 10.38, 10.38, 0, 6.13, 6.13, 8.49, 8.49, 8.49]]]
+
+    let sub_values = 
+      [[33.87, 38.103755, 42.33751],
+       [16.935, 19.051877, 21.168754],
+       [16.935, 19.051877, 21.168754],
+       [3.456, 3.888, 4.32],
+       [3.456, 3.888, 4.32],
+       [4.32, 4.86, 5.4],
+       [2, 2.3, 2.6],
+       [2.592, 2.916, 3.24],
+       [5.184, 5.832, 6.48],
+       [3.456, 3.888, 4.32],
+       [3.456, 3.888, 4.32],
+       [5.184, 5.832, 6.48]]
+
     for (let i = 0; i < num_pieces; i++) {
       let piece = Math.floor(Math.random() * pieces.length);
       let main = weighted_random(main_stat[piece][0], main_stat[piece][1]);
       let main_index = main_stat[piece][0].indexOf(main);
-      let sub = wsample(sub_stat, sub_weight[piece][main_index], Math.random() < .8 ? 3 : 4)[1];
+      let sub = wsample(sub_stat, sub_weight[piece][main_index], Math.random() < .8 ? 3 : 4);
+      let sub_output = [];
+      for (let i=0; i < sub.length; i++) {
+        sub_output += [sub[1][i] + " " + sub_values[sub[0][i]][Math.floor(Math.random()*3)] + "<br>"];
+      }
       let set = Math.random() < .5 ? "1" : "2";
-      relics += "Piece: " + pieces[piece] + "<br>Set: " + set + "<br>Main Stat: " + main + "<br>Sub Stats: " + sub + "<br><br>";
+      relics += "Piece: " + pieces[piece] + "<br>Set: " + set + "<br>Main Stat:<br>" + main + "<br>Sub Stats:<br>" + sub_output + "<br><br>";
     } 
     return relics;
   }
