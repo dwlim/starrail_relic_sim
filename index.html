@@ -3,15 +3,80 @@
 <body>
 
 <button onclick="rollRelics()">Roll Relics</button>
-<div id="relic_results"></div>
+
+<button onclick="levelRelics(0)">Level Relic 1</button>
+
+<button onclick="levelRelics(1)">Level Relic 2</button>
+
+<button onclick="levelRelics(2)">Level Relic 3</button>
+<pre id="relic_results"></pre>
 
 </body>
 </html>
 
 
 <script>
+  var relics = []
+  let pieces = ["Hat", "Glove", "Body", "Boots"]; //, "Orb", "Rope"];
+  let main_stat = 
+    [[["Hp"], [1]], 
+    [["Atk"], [1]], 
+    [["Hp%", "Atk%", "Def%", "CR", "CD", "Heal", "EHR", "ER"], [20, 20, 20, 10, 10, 10, 10]], 
+    [["Hp", "Atk", "Def", "Spd"], [27.5, 30, 30, 12.5]]];
+
+  let sub_stat = ["Hp", "Atk", "Def", "Hp%", "Atk%", "Def%", "Spd", "CR", "CD", "EHR", "ER", "BE"];
+  let sub_weight = 
+  [[[0, 11, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]],
+    [[11, 0, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]], 
+    [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9], 
+    [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9], 
+    [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
+    [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 0, 6.22, 8.61, 8.61, 8.61],
+    [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 6.22, 0, 8.61, 8.61, 8.61],
+    [9.91, 9.91, 9.91, 9.91, 9.91, 9.91, 4.5, 5.86, 5.86, 8.11, 8.11, 8.11],
+    [10.78, 10.78, 10.78, 10.78, 10.78, 10.78, 4.9, 6.37, 6.37, 0, 8.82, 8.82]
+    ], 
+    [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9],
+    [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9],
+    [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
+    [10.38, 10.38, 10.38, 10.38, 10.38, 10.38, 0, 6.13, 6.13, 8.49, 8.49, 8.49]]]
+
+  let sub_values = 
+    [[33.87, 38.103755, 42.33751],
+      [16.935, 19.051877, 21.168754],
+      [16.935, 19.051877, 21.168754],
+      [3.456, 3.888, 4.32],
+      [3.456, 3.888, 4.32],
+      [4.32, 4.86, 5.4],
+      [2, 2.3, 2.6],
+      [2.592, 2.916, 3.24],
+      [5.184, 5.832, 6.48],
+      [3.456, 3.888, 4.32],
+      [3.456, 3.888, 4.32],
+      [5.184, 5.832, 6.48]]
+
+  function refreshUI() {
+    document.getElementById("relic_results").innerHTML = JSON.stringify(relics, undefined, 2);
+  }
   function rollRelics() {
-    document.getElementById("relic_results").innerHTML = generateRelic();
+    relics.length = 0;
+    generateRelic();
+    refreshUI();
+  }
+
+  function levelRelics(index) {
+    if (index >= relics.length || relics[index].level >= 15){
+      return;
+    }
+    if (relics[index].sub_stats[3].show == false) {
+      relics[index].sub_stats[3].show = true;
+    } else {
+      let sub_index = Math.floor(Math.random() * 3);
+      let level_increment = sub_values[relics[index].sub_stats[sub_index].index][Math.floor(Math.random()*3)];
+      relics[index].sub_stats[sub_index].value += level_increment;
+    }
+    relics[index].level += 3;
+    refreshUI();
   }
 
   function weighted_random(items, weights) {
@@ -87,59 +152,31 @@
   }
 
   function generateRelic() {
-    let relics = [];
     let num_pieces = Math.random() < 0.108 ? 3 : 2;
-    let pieces = ["Hat", "Glove", "Body", "Boots"]; //, "Orb", "Rope"];
-    let main_stat = 
-      [[["Hp"], [1]], 
-      [["Atk"], [1]], 
-      [["Hp%", "Atk%", "Def%", "CR", "CD", "Heal", "EHR", "ER"], [20, 20, 20, 10, 10, 10, 10]], 
-      [["Hp", "Atk", "Def", "Spd"], [27.5, 30, 30, 12.5]]];
-
-    let sub_stat = ["Hp", "Atk", "Def", "Hp%", "Atk%", "Def%", "Spd", "CR", "CD", "EHR", "ER", "BE"];
-    let sub_weight = 
-    [[[0, 11, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]],
-     [[11, 0, 11, 11, 11, 11, 5, 6.5, 6.5, 9, 9, 9]], 
-     [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9], 
-      [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9], 
-      [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
-      [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 0, 6.22, 8.61, 8.61, 8.61],
-      [10.53, 10.53, 10.53, 10.53, 10.53, 10.53, 4.78, 6.22, 0, 8.61, 8.61, 8.61],
-      [9.91, 9.91, 9.91, 9.91, 9.91, 9.91, 4.5, 5.86, 5.86, 8.11, 8.11, 8.11],
-      [10.78, 10.78, 10.78, 10.78, 10.78, 10.78, 4.9, 6.37, 6.37, 0, 8.82, 8.82]
-     ], 
-     [[11, 11, 11, 0, 11, 11, 5, 6.5, 6.5, 9, 9, 9],
-      [11, 11, 11, 11, 0, 11, 5, 6.5, 6.5, 9, 9, 9],
-      [11, 11, 11, 11, 11, 0, 5, 6.5, 6.5, 9, 9, 9],
-      [10.38, 10.38, 10.38, 10.38, 10.38, 10.38, 0, 6.13, 6.13, 8.49, 8.49, 8.49]]]
-
-    let sub_values = 
-      [[33.87, 38.103755, 42.33751],
-       [16.935, 19.051877, 21.168754],
-       [16.935, 19.051877, 21.168754],
-       [3.456, 3.888, 4.32],
-       [3.456, 3.888, 4.32],
-       [4.32, 4.86, 5.4],
-       [2, 2.3, 2.6],
-       [2.592, 2.916, 3.24],
-       [5.184, 5.832, 6.48],
-       [3.456, 3.888, 4.32],
-       [3.456, 3.888, 4.32],
-       [5.184, 5.832, 6.48]]
 
     for (let i = 0; i < num_pieces; i++) {
+      var item = {};
+
       let piece = Math.floor(Math.random() * pieces.length);
-      let main = weighted_random(main_stat[piece][0], main_stat[piece][1]);
-      let main_index = main_stat[piece][0].indexOf(main);
-      let sub = wsample(sub_stat, sub_weight[piece][main_index], Math.random() < .8 ? 3 : 4);
-      let sub_output = [];
+      item.name = pieces[piece];
+      item.main_stat = weighted_random(main_stat[piece][0], main_stat[piece][1]);
+      item.sub_stats = [];
+      item.level = 0;
+
+      let main_index = main_stat[piece][0].indexOf(item.main_stat);
+      let sub = wsample(sub_stat, sub_weight[piece][main_index], 4);
       for (let i=0; i < sub[0].length; i++) {
-        sub_output += [sub[1][i] + " " + sub_values[sub[0][i]][Math.floor(Math.random()*3)] + "<br>"];
+        var subs = {};
+        subs.stat = sub[1][i];
+        subs.index = sub[0][i];
+        subs.value = sub_values[sub[0][i]][Math.floor(Math.random()*3)];
+        subs.show = i==3 && Math.random() < .8 ? false : true;
+        item.sub_stats.push(subs);
       }
-      let set = Math.random() < .5 ? "1" : "2";
-      relics += "Piece: " + pieces[piece] + "<br>Set: " + set + "<br>Main Stat:<br>" + main + "<br>Sub Stats:<br>" + sub_output + "<br><br>";
-    } 
-    return relics;
+      item.set = Math.random() < .5 ? "1" : "2";
+      console.log(item);
+      relics.push(item);
+    }
   }
 
   </script>
