@@ -4,11 +4,7 @@
 
 <button onclick="rollRelics()">Roll Relics</button>
 
-<button onclick="levelRelics(0)">Level Relic 1</button>
-
-<button onclick="levelRelics(1)">Level Relic 2</button>
-
-<button onclick="levelRelics(2)">Level Relic 3</button>
+<div id="relic_output"></div>
 <pre id="relic_results"></pre>
 
 </body>
@@ -55,28 +51,64 @@
       [3.456, 3.888, 4.32],
       [5.184, 5.832, 6.48]]
 
+  function buildUI() {
+    document.getElementById("relic_output").innerHTML = "";
+    for (const element of relics) {
+      const tbl = document.createElement('table');
+      const title_header = tbl.insertRow();
+      title_header.innerHTML = "<b>" + element.name + " of Set " + element.set + "</b>"
+      const main_header = tbl.insertRow();
+      main_header.innerHTML = "<b>Main Stat:</b>"
+      const main_tr = tbl.insertRow();
+      const main_td1 = main_tr.insertCell();
+      const main_td2 = main_tr.insertCell();
+      main_td1.innerHTML = element.main_stat;
+
+      const sub_header = tbl.insertRow();
+      sub_header.innerHTML = "<b>Sub Stats:</b>"
+      for (const substat of element.sub_stats) {
+        if (substat.show == true) {
+          const tr = tbl.insertRow();
+          const td1 = tr.insertCell();
+          const td2 = tr.insertCell();
+
+          td1.innerHTML = substat.stat;
+          td2.innerHTML = substat.value;
+        }
+      }
+      const btn = document.createElement('button');
+      btn.textContent = "Level Relic";
+      btn.onclick = function() {levelRelics(element);}
+      document.getElementById("relic_output").appendChild(btn);
+      document.getElementById("relic_output").appendChild(tbl);
+
+
+    }
+  }
+
   function refreshUI() {
     document.getElementById("relic_results").innerHTML = JSON.stringify(relics, undefined, 2);
   }
+
   function rollRelics() {
     relics.length = 0;
     generateRelic();
-    refreshUI();
+    buildUI();
   }
 
-  function levelRelics(index) {
-    if (index >= relics.length || relics[index].level >= 15){
+  function levelRelics(element) {
+    if (element.level >= 15){
       return;
     }
-    if (relics[index].sub_stats[3].show == false) {
-      relics[index].sub_stats[3].show = true;
+    if (element.sub_stats[3].show == false) {
+      element.sub_stats[3].show = true;
     } else {
       let sub_index = Math.floor(Math.random() * 3);
-      let level_increment = sub_values[relics[index].sub_stats[sub_index].index][Math.floor(Math.random()*3)];
-      relics[index].sub_stats[sub_index].value += level_increment;
+      let level_increment = sub_values[element.sub_stats[sub_index].index][Math.floor(Math.random()*3)];
+      element.sub_stats[sub_index].value += level_increment;
     }
-    relics[index].level += 3;
-    refreshUI();
+    element.level += 3;
+    buildUI();
   }
 
   function weighted_random(items, weights) {
