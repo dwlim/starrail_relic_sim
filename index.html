@@ -3,6 +3,8 @@
 <body>
 
 <button onclick="rollRelics()">Roll Relics</button>
+<button onclick="simRelics()">SIM Relics</button>
+
 
 <div id="relic_output"></div>
 <pre id="relic_results"></pre>
@@ -12,13 +14,18 @@
 
 
 <script>
+  const sim_trials = 100000;
   var relics = []
+  var relics_save = []
   let pieces = ["Hat", "Glove", "Body", "Boots"]; //, "Orb", "Rope"];
   let main_stat = 
     [[["Hp"], [1]], 
     [["Atk"], [1]], 
     [["Hp%", "Atk%", "Def%", "CR", "CD", "Heal", "EHR", "ER"], [20, 20, 20, 10, 10, 10, 10]], 
     [["Hp", "Atk", "Def", "Spd"], [27.5, 30, 30, 12.5]]];
+  let main_value = {
+    "Hp": {"base": 112.896, "level": 39.5136}
+  };
 
   let sub_stat = ["Hp", "Atk", "Def", "Hp%", "Atk%", "Def%", "Spd", "CR", "CD", "EHR", "ER", "BE"];
   let sub_weight = 
@@ -55,25 +62,24 @@
     document.getElementById("relic_output").innerHTML = "";
     for (const element of relics) {
       const tbl = document.createElement('table');
+      tbl.style = "background:#d8d8d8;";
       const title_header = tbl.insertRow();
       title_header.innerHTML = "<b>" + element.name + " of Set " + element.set + "</b>"
-      const main_header = tbl.insertRow();
-      main_header.innerHTML = "<b>Main Stat:</b>"
       const main_tr = tbl.insertRow();
+      main_tr.style = "color: #d8872c; background: #cbcbcb;";
       const main_td1 = main_tr.insertCell();
       const main_td2 = main_tr.insertCell();
       main_td1.innerHTML = element.main_stat;
 
-      const sub_header = tbl.insertRow();
-      sub_header.innerHTML = "<b>Sub Stats:</b>"
-      for (const substat of element.sub_stats) {
-        if (substat.show == true) {
+      for (const substat of Object.keys(element.sub_stats)) {
+        if (element.sub_stats[substat].show == true) {
           const tr = tbl.insertRow();
+          tr.style = "background: #d1d1d3;";
           const td1 = tr.insertCell();
           const td2 = tr.insertCell();
 
-          td1.innerHTML = substat.stat;
-          td2.innerHTML = substat.value;
+          td1.innerHTML = substat;
+          td2.innerHTML = element.sub_stats[substat].value;
         }
       }
       const btn = document.createElement('button');
@@ -96,14 +102,22 @@
     buildUI();
   }
 
+  function simRelics() {
+    const start = Date.now();
+    const res = [...Array(sim_trials)].map((_, i) => generateRelic(true));
+    const end = Date.now();
+    console.log(`done in ${end - start} ms`);
+  }
+
   function levelRelics(element) {
     if (element.level >= 15){
       return;
     }
-    if (element.sub_stats[3].show == false) {
-      element.sub_stats[3].show = true;
+    let hiddenSub = Object.keys(element.sub_stats).filter(sub => element.sub_stats[sub].show === false);
+    if (hiddenSub.length === 1) {
+      element.sub_stats[hiddenSub].show = true;
     } else {
-      let sub_index = Math.floor(Math.random() * 3);
+      let sub_index = Object.keys(element.sub_stats)[Math.floor(Math.random() * 4)];
       let level_increment = sub_values[element.sub_stats[sub_index].index][Math.floor(Math.random()*3)];
       element.sub_stats[sub_index].value += level_increment;
     }
@@ -183,7 +197,7 @@
     return [indices, sample];
   }
 
-  function generateRelic() {
+  function generateRelic(sim) {
     let num_pieces = Math.random() < 0.108 ? 3 : 2;
 
     for (let i = 0; i < num_pieces; i++) {
@@ -199,16 +213,44 @@
       let sub = wsample(sub_stat, sub_weight[piece][main_index], 4);
       for (let i=0; i < sub[0].length; i++) {
         var subs = {};
-        subs.stat = sub[1][i];
+        var stat = sub[1][i];
         subs.index = sub[0][i];
         subs.value = sub_values[sub[0][i]][Math.floor(Math.random()*3)];
         subs.show = i==3 && Math.random() < .8 ? false : true;
-        item.sub_stats.push(subs);
+        item.sub_stats[stat] = subs;
       }
       item.set = Math.random() < .5 ? "1" : "2";
-      console.log(item);
-      relics.push(item);
+      // console.log(item);
+      if (!sim) {
+        relics.push(item);
+      }
+      if (sim) {
+        const res = [...Array(5)].map((_, i) => levelRelics(item));
+      }
+      relics_save.push(item);
     }
+  }
+
+  function filterRelics(piece, mainstat) {
+    return relics_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
+  }
+
+  function scoreRelics(relic_list, threshold) {
+    effective_score = [];
+    for (let i=0; i < relic_list.length; i++){
+      let score = relic_list[i].sub_stats;
+      effective_score.push(
+        (score["Atk%"] ? score["Atk%"].value : 0) * .8 + 
+        (score["Atk"] ? score["Atk"].value : 0) * .02 + 
+        (score["CR"] ? score["CR"].value : 0) * 2 +
+        (score["CD"] ? score["CD"].value : 0)
+      );
+    }
+    return effective_score.filter(s => s > threshold);
+  }
+
+  function estimateTBPower(scores) {
+    return sim_trials / scores.length * 40
   }
 
   </script>
