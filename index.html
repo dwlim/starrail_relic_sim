@@ -298,7 +298,7 @@ function weighted_random(r_items, r_weights) {
   function estimateTBPower() {
     var calculated_weight = weightRelic(document.getElementById("relic-atk-perc").value, document.getElementById("relic-atk").value, document.getElementById("relic-cr").value, document.getElementById("relic-cd").value);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
-    document.getElementById("estimated-tb-power").innerHTML = sim_trials / scores.length * 40;
+    document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + sim_trials / scores.length * 40 + " or Days: " + sim_trials / scores.length * 40 / 240;
   }
 
   </script>
