@@ -8,6 +8,17 @@
 
 <div id="relic_output"></div>
 <pre id="relic_results"></pre>
+<div id="saved_relics"></div>
+<div id="relic_improve">
+  <select id="piece-names" onchange="populateRelicMainStat(this.value)"><option>Choose a relic piece:</option></select>
+  <select id="main-stat-names"><option>Choose a main stat:</option></select>
+  <br>Atk%: <input type="number" id="relic-atk-perc">
+  <br>Flat Atk: <input type="number" id="relic-atk">
+  <br>Crit Rate: <input type="number" id="relic-cr">
+  <br>Crit Damage: <input type="number" id="relic-cd">
+  <br><button onclick="estimateTBPower()">Estimate TB Power</button>
+  <br><div id="estimated-tb-power"></div>
+</div>
 
 </body>
 </html>
@@ -15,8 +26,10 @@
 
 <script>
   const sim_trials = 100000;
-  var relics = []
-  var relics_save = []
+  var relics = [];
+  var relics_save = [];
+  var trials_run = 0;
+
   const piece_options = ["Hat", "Glove", "Body", "Boots"]; //, "Orb", "Rope"];
   const main_stat_options = 
     [[["Hp"], [1]], 
@@ -57,6 +70,25 @@
       [3.456, 3.888, 4.32],
       [3.456, 3.888, 4.32],
       [5.184, 5.832, 6.48]]
+
+  for(var i = 0; i < piece_options.length; i++) {
+    var opt = piece_options[i];
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = opt;
+    document.getElementById("piece-names").appendChild(el);
+  }
+
+  function populateRelicMainStat(chosen_piece){
+    for(var i = 0; i < main_stat_options[piece_options.indexOf(chosen_piece)][0].length; i++) {
+      var opt = main_stat_options[piece_options.indexOf(chosen_piece)][0][i];
+      var el = document.createElement("option");
+      el.textContent = opt;
+      el.value = opt;
+      document.getElementById("main-stat-names").appendChild(el);
+    }
+  }
+  
 
   function buildUI() {
     document.getElementById("relic_output").innerHTML = "";
@@ -107,6 +139,8 @@
     const res = [...Array(sim_trials)].map((_, i) => generateRelic(true));
     const end = Date.now();
     console.log(`done in ${end - start} ms`);
+    trials_run += sim_trials;
+    document.getElementById("saved_relics").innerHTML = "You have run " + trials_run + " trials and have " + relics_save.length + " relics saved.";
   }
 
   function levelRelics(element, sim) {
@@ -255,8 +289,14 @@ function weighted_random(r_items, r_weights) {
     return effective_score.filter(s => s > threshold);
   }
 
-  function estimateTBPower(scores) {
-    return sim_trials / scores.length * 40
+  function weightRelic(atk_perc, atk, cr, cd) {
+    return atk_perc * .8 + atk * .02 + cr * 2 + cd;
+  }
+
+  function estimateTBPower() {
+    var calculated_weight = weightRelic(document.getElementById("relic-atk-perc").value, document.getElementById("relic-atk").value, document.getElementById("relic-cr").value, document.getElementById("relic-cd").value);
+    var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
+    document.getElementById("estimated-tb-power").innerHTML = sim_trials / scores.length * 40;
   }
 
   </script>
