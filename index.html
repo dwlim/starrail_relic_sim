@@ -292,11 +292,15 @@ function weighted_random(r_items, r_weights) {
   }
 
   function weightRelic(atk_perc, atk, cr, cd) {
-    return atk_perc * .8 + atk * .02 + cr * 2 + cd;
+    return (parseFloat(atk_perc) ? parseFloat(atk_perc) : 0) * .8 + 
+      (parseFloat(atk) ? parseFloat(atk) : 0)  * .02 + 
+      (parseFloat(cr) ? parseFloat(cr) : 0) * 2 + 
+      (parseFloat(cd) ? parseFloat(cd) : 0);
   }
 
   function estimateTBPower() {
     var calculated_weight = weightRelic(document.getElementById("relic-atk-perc").value, document.getElementById("relic-atk").value, document.getElementById("relic-cr").value, document.getElementById("relic-cd").value);
+    console.log(calculated_weight);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
     document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + sim_trials / scores.length * 40 + " or Days: " + sim_trials / scores.length * 40 / 240;
   }
