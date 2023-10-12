@@ -36,7 +36,7 @@
     [[["Hp"], [1]], 
     [["Atk"], [1]], 
     [["Hp%", "Atk%", "Def%", "CR", "CD", "Heal", "EHR"], [20, 20, 20, 10, 10, 10, 10]], 
-    [["Hp", "Atk", "Def", "Spd"], [27.5, 30, 30, 12.5]]];
+    [["Hp%", "Atk%", "Def%", "Spd"], [27.5, 30, 30, 12.5]]];
   const main_value = {
     "Hp": {"base": 112.896, "level": 39.5136}
   };
@@ -149,9 +149,9 @@
     if (element.level >= 15){
       return;
     }
-    let hiddenSub = Object.keys(element.sub_stats).filter(sub => element.sub_stats[sub].show === false);
-    if (hiddenSub.length === 1) {
-      element.sub_stats[hiddenSub].show = true;
+    if (element.hidden) {
+      element.sub_stats[element.hidden].show = true;
+      element.hidden = null;
     } else {
       let sub_index = Object.keys(element.sub_stats)[Math.floor(Math.random() * 4)];
       let level_increment = sub_stat_values[element.sub_stats[sub_index].index][Math.floor(Math.random()*3)];
@@ -246,8 +246,6 @@ function weighted_random(r_items, r_weights) {
       let piece = Math.floor(Math.random() * piece_options.length);
       item.name = piece_options[piece];
       item.main_stat = weighted_random(main_stat_options[piece][0], main_stat_options[piece][1]);
-      // console.log(main_stat_options[piece][0]);
-      // console.log(main_stat_options[piece][1]);
       item.sub_stats = [];
       item.level = 0;
 
@@ -258,18 +256,22 @@ function weighted_random(r_items, r_weights) {
         var stat = sub[1][i];
         subs.index = sub[0][i];
         subs.value = sub_stat_values[sub[0][i]][Math.floor(Math.random()*3)];
-        subs.show = i==3 && Math.random() < .8 ? false : true;
+        if (i==3 && Math.random() < .8) {
+          subs.show = false;
+          item.hidden = stat;
+        } else {
+          subs.show = true;
+        }
         item.sub_stats[stat] = subs;
       }
       item.set = Math.random() < .5 ? "1" : "2";
 
       if (!sim) {
         relics.push(item);
-      }
-      if (sim) {
+      } else {
         const res = [...Array(5)].map((_, i) => levelRelics(item, sim));
+        relics_save.push(item);
       }
-      relics_save.push(item);
     }
   }
 
@@ -300,9 +302,8 @@ function weighted_random(r_items, r_weights) {
 
   function estimateTBPower() {
     var calculated_weight = weightRelic(document.getElementById("relic-atk-perc").value, document.getElementById("relic-atk").value, document.getElementById("relic-cr").value, document.getElementById("relic-cd").value);
-    console.log(calculated_weight);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
-    document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + sim_trials / scores.length * 40 + " or Days: " + sim_trials / scores.length * 40 / 240;
+    document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + trials_run / scores.length * 40 + " or Days: " + trials_run / scores.length * 40 / 240;
   }
 
   </script>
