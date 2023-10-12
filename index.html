@@ -81,6 +81,7 @@
   }
 
   function populateRelicMainStat(chosen_piece){
+    document.getElementById("main-stat-names").innerHTML = "";
     for(var i = 0; i < main_stat_options[piece_options.indexOf(chosen_piece)][0].length; i++) {
       var opt = main_stat_options[piece_options.indexOf(chosen_piece)][0][i];
       var el = document.createElement("option");
