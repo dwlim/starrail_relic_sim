@@ -27,13 +27,39 @@
       <select id="piece-names" onchange="populateRelicMainStat(this.value)"><option>Choose a relic piece:</option></select>
       <select id="main-stat-names"><option>Choose a main stat:</option></select>
       <div id="atk-scaling-formula">
-        <br>Atk%: <input type="number" id="relic-atk-perc">
-        <br>Flat Atk: <input type="number" id="relic-atk">
-        <br>Crit Rate: <input type="number" id="relic-cr">
-        <br>Crit Damage: <input type="number" id="relic-cd">
-        <br><button onclick="estimateTBPower()">Estimate TB Power</button>
-        <br><div id="estimated-tb-power"></div>
+        <p>You only need to fill in the sub stats you care about. For CRIT DPS that is Atk%, Atk, CR, CD</p>
+        Flat HP: <input type="number" id="relic-hp-flat" value="0">
+        <br>Flat Atk: <input type="number" id="relic-atk-flat" value="0" style="background-color: #fffdca;">
+        <br>Flat Def: <input type="number" id="relic-def-flat" value="0">
+        <br>HP%: <input type="number" id="relic-hp-perc" value="0">
+        <br>Atk%: <input type="number" id="relic-atk-perc" value="0" style="background-color: #fffdca;">
+        <br>Def%: <input type="number" id="relic-def-perc" value="0">
+        <br>Speed: <input type="number" id="relic-spd" value="0">
+        <br>Crit Rate: <input type="number" id="relic-cr" value="0" style="background-color: #fffdca;">
+        <br>Crit Damage: <input type="number" id="relic-cd" value="0" style="background-color: #fffdca;">
+        <br>Effect Hit Rate: <input type="number" id="relic-ehr" value="0">
+        <br>Effect Res: <input type="number" id="relic-er" value="0">
+        <br>Break Effect: <input type="number" id="relic-be" value="0">
+        <br><button onclick="estimateTBPower()">Estimate TB Power for CRIT DPS</button>
       </div>
+
+      <br><button onclick="showAdvanceMode()">Advanced Mode</button>
+      <div id="advanced-mode" style="display:none;">
+        <p>Add a weighting for each stat. Remember this is final stat value and not number of rolls</p>
+        Flat HP: <input type="number" id="relic-hp-flat-weight" value="0">
+        <br>Flat Atk: <input type="number" id="relic-atk-flat-weight" value="0.07">
+        <br>Flat Def: <input type="number" id="relic-def-flat-weight" value="0">
+        <br>HP%: <input type="number" id="relic-hp-perc-weight" value="0">
+        <br>Atk%: <input type="number" id="relic-atk-perc-weight" value="0.9">
+        <br>Def%: <input type="number" id="relic-def-perc-weight" value="0">
+        <br>Speed: <input type="number" id="relic-spd-weight" value="0">
+        <br>Crit Rate: <input type="number" id="relic-cr-weight" value="2">
+        <br>Crit Damage: <input type="number" id="relic-cd-weight" value="1">
+        <br>Effect Hit Rate: <input type="number" id="relic-ehr-weight" value="0">
+        <br>Effect Res: <input type="number" id="relic-er-weight" value="0">
+        <br>Break Effect: <input type="number" id="relic-be-weight" value="0">
+      </div>
+      <br><div id="estimated-tb-power"></div>
     </div>
   </div>
 </div>
@@ -162,6 +188,14 @@
       el.textContent = opt;
       el.value = opt;
       document.getElementById("main-stat-names").appendChild(el);
+    }
+  }
+  
+  function showAdvanceMode(){
+    if(document.getElementById("advanced-mode").style.display === 'none'){
+      document.getElementById("advanced-mode").style.display = 'block';
+    } else {
+      document.getElementById("advanced-mode").style.display = 'none';
     }
   }
   
@@ -356,25 +390,56 @@ function weighted_random(r_items, r_weights) {
     effective_score = [];
     for (let i=0; i < relic_list.length; i++){
       let score = relic_list[i].sub_stats;
-      effective_score.push(
-        (score["Atk%"] ? score["Atk%"].value : 0) * .8 + 
-        (score["Atk"] ? score["Atk"].value : 0) * .02 + 
-        (score["CR"] ? score["CR"].value : 0) * 2 +
-        (score["CD"] ? score["CD"].value : 0)
-      );
+      let i_relic = [];
+      i_relic.push([score["Hp"] ? score["Hp"].value : 0]);
+      i_relic.push([score["Atk"] ? score["Atk"].value : 0]);
+      i_relic.push([score["Def"] ? score["Def"].value : 0]);
+      i_relic.push([score["Hp%"] ? score["Hp%"].value : 0]);
+      i_relic.push([score["Atk%"] ? score["Atk%"].value : 0]);
+      i_relic.push([score["Def%"] ? score["Def%"].value : 0]);
+      i_relic.push([score["Spd"] ? score["Spd"].value : 0]);
+      i_relic.push([score["CR"] ? score["CR"].value : 0]);
+      i_relic.push([score["CD"] ? score["CD"].value : 0]);
+      i_relic.push([score["EHR"] ? score["EHR"].value : 0]);
+      i_relic.push([score["ER"] ? score["ER"].value : 0]);
+      i_relic.push([score["BE"] ? score["BE"].value : 0]);
+      effective_score.push(weightRelic(i_relic));
     }
     return effective_score.filter(s => s > threshold);
   }
 
-  function weightRelic(atk_perc, atk, cr, cd) {
-    return (parseFloat(atk_perc) ? parseFloat(atk_perc) : 0) * .8 + 
-      (parseFloat(atk) ? parseFloat(atk) : 0)  * .02 + 
-      (parseFloat(cr) ? parseFloat(cr) : 0) * 2 + 
-      (parseFloat(cd) ? parseFloat(cd) : 0);
+  function weightRelic(relic) {
+    let weight =
+      relic[0] * document.getElementById("relic-hp-flat-weight").value +
+      relic[1] * document.getElementById("relic-atk-flat-weight").value +
+      relic[2] * document.getElementById("relic-def-flat-weight").value +
+      relic[3] * document.getElementById("relic-hp-perc-weight").value +
+      relic[4] * document.getElementById("relic-atk-perc-weight").value +
+      relic[5] * document.getElementById("relic-def-perc-weight").value +
+      relic[6] * document.getElementById("relic-spd-weight").value +
+      relic[7] * document.getElementById("relic-cr-weight").value +
+      relic[8] * document.getElementById("relic-cd-weight").value +
+      relic[9] * document.getElementById("relic-ehr-weight").value +
+      relic[10] * document.getElementById("relic-er-weight").value +
+      relic[11] * document.getElementById("relic-be-weight").value;
+    return weight;
   }
 
   function estimateTBPower() {
-    var calculated_weight = weightRelic(document.getElementById("relic-atk-perc").value, document.getElementById("relic-atk").value, document.getElementById("relic-cr").value, document.getElementById("relic-cd").value);
+    var relic = [];
+    relic.push(document.getElementById("relic-hp-flat").value);
+    relic.push(document.getElementById("relic-atk-flat").value);
+    relic.push(document.getElementById("relic-def-flat").value);
+    relic.push(document.getElementById("relic-hp-perc").value);
+    relic.push(document.getElementById("relic-atk-perc").value);
+    relic.push(document.getElementById("relic-def-perc").value);
+    relic.push(document.getElementById("relic-spd").value);
+    relic.push(document.getElementById("relic-cr").value);
+    relic.push(document.getElementById("relic-cd").value);
+    relic.push(document.getElementById("relic-ehr").value);
+    relic.push(document.getElementById("relic-er").value);
+    relic.push(document.getElementById("relic-be").value);
+    var calculated_weight = weightRelic(relic);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
     document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + Math.floor(trials_run / scores.length * 40) + " or Days: " + Math.floor(trials_run / scores.length * 40 / 240);
   }
