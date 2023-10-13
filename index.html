@@ -59,7 +59,10 @@
         <br>Effect Res: <input type="number" id="relic-er-weight" value="0">
         <br>Break Effect: <input type="number" id="relic-be-weight" value="0">
       </div>
-      <br><div id="estimated-tb-power"></div>
+      <br><br>
+      <div id="estimated-tb-power"></div>
+      <div id="estimated-craft"></div>
+      <div id="estimated-resin-craft"></div>
     </div>
   </div>
 </div>
@@ -381,7 +384,11 @@
   }
 
   function filterRelics(piece, mainstat) {
-    return relics_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
+    if (piece && mainstat) {
+      return relics_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
+    } if (piece) {
+      return relics_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+    }
   }
 
   function scoreRelics(relic_list, threshold) {
@@ -403,7 +410,7 @@
       i_relic.push([score["BE"] ? score["BE"].value : 0]);
       effective_score.push(weightRelic(i_relic));
     }
-    return effective_score.filter(s => s > threshold);
+    return effective_score.filter(s => s >= threshold);
   }
 
   function weightRelic(relic) {
@@ -439,7 +446,9 @@
     relic.push(document.getElementById("relic-be").value);
     var calculated_weight = weightRelic(relic);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
-    document.getElementById("estimated-tb-power").innerHTML = "Required TB Power: " + Math.floor(trials_run / scores.length * 40) + " or Days: " + Math.floor(trials_run / scores.length * 40 / 240);
+    document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / 240);
+    document.getElementById("estimated-craft").innerHTML = "Average Crafts Required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value).length / scores.length);
+    document.getElementById("estimated-resin-craft").innerHTML = "Average Self Modeling Resin Crafts required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value).length / scores.length);
   }
 
 </script>
