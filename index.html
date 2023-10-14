@@ -9,7 +9,8 @@
       <br>After you roll a relic you can level it up to see what substats it will have.
       <br>
     </p>
-    <button onclick="rollRelics()">Roll Relics</button>
+    <button onclick="rollRelics('relic')">Roll Relics</button>
+    <button onclick="rollRelics('planar')">Roll Planars</button>
     <div id="relic_output"></div>
     <pre id="relic_results"></pre>
   </div>
@@ -79,6 +80,7 @@
   const sim_trials = 100000;
   var relics = [];
   var relics_save = [];
+  var planars_save = [];
   var trials_run = 0;
 
   const piece_options = ["Hat", "Glove", "Body", "Boots", "Orb", "Rope"];
@@ -242,19 +244,20 @@
     document.getElementById("relic_results").innerHTML = JSON.stringify(relics, undefined, 2);
   }
 
-  function rollRelics() {
+  function rollRelics(equip_type) {
     relics.length = 0;
-    generateRelic();
+    generateRelic(false, equip_type);
     buildUI();
   }
 
   function simRelics() {
     const start = Date.now();
-    const res = [...Array(sim_trials)].map((_, i) => generateRelic(true));
+    const gen_relic = [...Array(sim_trials)].map((_, i) => generateRelic(true, "relic"));
+    const gen_planar = [...Array(sim_trials)].map((_, i) => generateRelic(true, "planar"));
     const end = Date.now();
     console.log(`done in ${end - start} ms`);
     trials_run += sim_trials;
-    document.getElementById("saved_relics").innerHTML = "You have run " + trials_run + " trials and have " + relics_save.length + " relics saved.";
+    document.getElementById("saved_relics").innerHTML = "You have run " + trials_run + " trials and have " + relics_save.length + " relics saved and " + planars_save.length + " planars saved.";
   }
 
   function levelRelics(element, sim) {
@@ -331,14 +334,21 @@
     return [indices, sample];
   }
 
-  function generateRelic(sim) {
+  function generateRelic(sim, equip_type) {
     let num_pieces = Math.random() < 0.108 ? 3 : 2;
+    let selected_piece_options = [];
+    
+    if (equip_type === "planar") {
+      selected_piece_options = piece_options.slice(4, 6);
+    } else {
+      selected_piece_options = piece_options.slice(0, 4);
+    }
 
     for (let i = 0; i < num_pieces; i++) {
       var item = {};
 
-      let piece = Math.floor(Math.random() * piece_options.length);
-      item.name = piece_options[piece];
+      let piece = Math.floor(Math.random() * selected_piece_options.length);
+      item.name = selected_piece_options[piece];
       item.main_stat = wsample(main_stat_options[piece][0], main_stat_options[piece][1], 1)[1][0];
       item.sub_stats = [];
       item.level = 0;
@@ -378,16 +388,21 @@
         relics.push(item);
       } else {
         const res = [...Array(5)].map((_, i) => levelRelics(item, sim));
-        relics_save.push(item);
+        if (equip_type === "planar") {
+          planars_save.push(item);
+        } else {
+          relics_save.push(item);
+        }
       }
     }
   }
 
   function filterRelics(piece, mainstat) {
+    let piece_save = piece_options.indexOf(piece) > 3 ? planars_save : relics_save;
     if (piece && mainstat) {
-      return relics_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
+      return piece_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
     } if (piece) {
-      return relics_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+      return piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
     }
   }
 
