@@ -334,6 +334,12 @@
     return [indices, sample];
   }
 
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   function generateRelic(sim, equip_type) {
     let num_pieces = Math.random() < 0.108 ? 3 : 2;
     let selected_piece_options = [];
@@ -347,8 +353,8 @@
     for (let i = 0; i < num_pieces; i++) {
       var item = {};
 
-      let piece = Math.floor(Math.random() * selected_piece_options.length);
-      item.name = selected_piece_options[piece];
+      let piece = equip_type === "planar" ? getRandomInt(4, 5) : getRandomInt(0, 3);
+      item.name = piece_options[piece];
       item.main_stat = wsample(main_stat_options[piece][0], main_stat_options[piece][1], 1)[1][0];
       item.sub_stats = [];
       item.level = 0;
