@@ -115,7 +115,7 @@ function generateRelic(sim, equip_type) {
         var item = {};
         item.set = Math.random() < .5 ? "1" : "2";
         if (sim && item.set === "2"){
-            break;
+            continue;
         }
 
         let piece = equip_type === "planar" ? getRandomInt(4, 5) : getRandomInt(0, 3);
@@ -231,7 +231,7 @@ function estimateTBPower() {
     relic.push(document.getElementById("relic-be").value);
     var calculated_weight = weightRelic(relic);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
-    document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / 240);
+    document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / (240 + 40 * document.getElementById("daily-refreshes").value));
     document.getElementById("estimated-craft").innerHTML = "Average Crafts Required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value).length / scores.length);
     document.getElementById("estimated-resin-craft").innerHTML = "Average Self Modeling Resin Crafts required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value).length / scores.length);
 }

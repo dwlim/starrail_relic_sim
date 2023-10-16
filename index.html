@@ -29,36 +29,37 @@
       <select id="main-stat-names"><option>Choose a main stat:</option></select>
       <div id="atk-scaling-formula">
         <p>You only need to fill in the sub stats you care about. For CRIT DPS that is Atk%, Atk, CR, CD</p>
-        Flat HP: <input type="number" id="relic-hp-flat" value="0">
-        <br>Flat Atk: <input type="number" id="relic-atk-flat" value="0" style="background-color: #fffdca;">
-        <br>Flat Def: <input type="number" id="relic-def-flat" value="0">
-        <br>HP%: <input type="number" id="relic-hp-perc" value="0">
-        <br>Atk%: <input type="number" id="relic-atk-perc" value="0" style="background-color: #fffdca;">
-        <br>Def%: <input type="number" id="relic-def-perc" value="0">
-        <br>Speed: <input type="number" id="relic-spd" value="0">
-        <br>Crit Rate: <input type="number" id="relic-cr" value="0" style="background-color: #fffdca;">
-        <br>Crit Damage: <input type="number" id="relic-cd" value="0" style="background-color: #fffdca;">
-        <br>Effect Hit Rate: <input type="number" id="relic-ehr" value="0">
-        <br>Effect Res: <input type="number" id="relic-er" value="0">
-        <br>Break Effect: <input type="number" id="relic-be" value="0">
+        <input type="number" id="relic-hp-flat" value="0"> Flat HP: 
+        <br><input type="number" id="relic-atk-flat" value="0" style="background-color: #fffdca;"> Flat Atk: 
+        <br><input type="number" id="relic-def-flat" value="0"> Flat Def:
+        <br><input type="number" id="relic-hp-perc" value="0"> HP%: 
+        <br><input type="number" id="relic-atk-perc" value="0" style="background-color: #fffdca;"> Atk%: 
+        <br><input type="number" id="relic-def-perc" value="0"> Def%: 
+        <br><input type="number" id="relic-spd" value="0"> Speed: 
+        <br><input type="number" id="relic-cr" value="0" style="background-color: #fffdca;"> Crit Rate: 
+        <br><input type="number" id="relic-cd" value="0" style="background-color: #fffdca;"> Crit Damage: 
+        <br><input type="number" id="relic-ehr" value="0"> Effect Hit Rate: 
+        <br><input type="number" id="relic-er" value="0"> Effect Res: 
+        <br><input type="number" id="relic-be" value="0"> Break Effect: 
         <br><button onclick="estimateTBPower()">Estimate TB Power for CRIT DPS</button>
       </div>
 
       <br><button onclick="showAdvanceMode()">Advanced Mode</button>
       <div id="advanced-mode" style="display:none;">
         <p>Add a weighting for each stat. Remember this is final stat value and not number of rolls</p>
-        Flat HP: <input type="number" id="relic-hp-flat-weight" value="0">
-        <br>Flat Atk: <input type="number" id="relic-atk-flat-weight" value="0.07">
-        <br>Flat Def: <input type="number" id="relic-def-flat-weight" value="0">
-        <br>HP%: <input type="number" id="relic-hp-perc-weight" value="0">
-        <br>Atk%: <input type="number" id="relic-atk-perc-weight" value="0.9">
-        <br>Def%: <input type="number" id="relic-def-perc-weight" value="0">
-        <br>Speed: <input type="number" id="relic-spd-weight" value="0">
-        <br>Crit Rate: <input type="number" id="relic-cr-weight" value="2">
-        <br>Crit Damage: <input type="number" id="relic-cd-weight" value="1">
-        <br>Effect Hit Rate: <input type="number" id="relic-ehr-weight" value="0">
-        <br>Effect Res: <input type="number" id="relic-er-weight" value="0">
-        <br>Break Effect: <input type="number" id="relic-be-weight" value="0">
+        <input type="number" id="relic-hp-flat-weight" value="0"> Flat HP: 
+        <br><input type="number" id="relic-atk-flat-weight" value="0.07"> Flat Atk: 
+        <br><input type="number" id="relic-def-flat-weight" value="0"> Flat Def: 
+        <br><input type="number" id="relic-hp-perc-weight" value="0"> HP%: 
+        <br><input type="number" id="relic-atk-perc-weight" value="0.9"> Atk%: 
+        <br><input type="number" id="relic-def-perc-weight" value="0"> Def%: 
+        <br><input type="number" id="relic-spd-weight" value="0"> Speed: 
+        <br><input type="number" id="relic-cr-weight" value="2"> Crit Rate: 
+        <br><input type="number" id="relic-cd-weight" value="1"> Crit Damage: 
+        <br><input type="number" id="relic-ehr-weight" value="0"> Effect Hit Rate: 
+        <br><input type="number" id="relic-er-weight" value="0"> Effect Res: 
+        <br><input type="number" id="relic-be-weight" value="0"> Break Effect: 
+        <br><br><input type="number" id="daily-refreshes" value="0" min="0" max="8"> # of Daily Refreshes: 
       </div>
       <br><br>
       <div id="estimated-tb-power"></div>
@@ -90,5 +91,7 @@
 
   .flex-child:first-child {
     margin-right: 20px;
-  } 
+  }
+
+
 </style>
