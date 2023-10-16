@@ -113,6 +113,10 @@ function generateRelic(sim, equip_type) {
 
     for (let i = 0; i < num_pieces; i++) {
         var item = {};
+        item.set = Math.random() < .5 ? "1" : "2";
+        if (sim && item.set === "2"){
+            break;
+        }
 
         let piece = equip_type === "planar" ? getRandomInt(4, 5) : getRandomInt(0, 3);
         item.name = piece_options[piece];
@@ -149,7 +153,6 @@ function generateRelic(sim, equip_type) {
             subs.value = sub_stat_values[sub[0][i]][Math.floor(Math.random() * 3)];
             item.sub_stats[stat] = subs;
         }
-        item.set = Math.random() < .5 ? "1" : "2";
 
         if (!sim) {
             relics.push(item);
