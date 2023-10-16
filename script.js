@@ -103,13 +103,6 @@ function levelRelics(element, sim) {
 
 function generateRelic(sim, equip_type) {
     let num_pieces = Math.random() < 0.108 ? 3 : 2;
-    let selected_piece_options = [];
-
-    if (equip_type === "planar") {
-        selected_piece_options = piece_options.slice(4, 6);
-    } else {
-        selected_piece_options = piece_options.slice(0, 4);
-    }
 
     for (let i = 0; i < num_pieces; i++) {
         var item = {};
@@ -168,12 +161,13 @@ function generateRelic(sim, equip_type) {
 }
 
 function filterRelics(piece, mainstat) {
+    console.log(mainstat);
     let piece_save = piece_options.indexOf(piece) > 3 ? planars_save : relics_save;
     let piece_output = []
-    if (piece && mainstat) {
-        piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
-    } if (piece) {
-        piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+
+    piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+    if (mainstat) {
+        piece_output = piece_output.filter(relic => (relic.main_stat === mainstat));
     }
     if (document.getElementById("relic-spd-minimum").value > 0) {
         piece_output = piece_output.filter(relic => {
@@ -185,6 +179,7 @@ function filterRelics(piece, mainstat) {
             return relic.sub_stats["CR"] && relic.sub_stats["CR"] > document.getElementById("relic-cr-minimum").value;
         });
     }
+    console.log(piece_output);
     return piece_output;
 }
 
