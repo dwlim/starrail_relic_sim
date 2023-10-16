@@ -60,3 +60,9 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function getStandardDeviation (array) {
+    const n = array.length;
+    const mean = array.reduce((a, b) => a + b) / n;
+    return [mean, Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)];
+}

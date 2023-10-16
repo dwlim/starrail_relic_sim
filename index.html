@@ -46,20 +46,27 @@
 
       <br><button onclick="showAdvanceMode()">Advanced Mode</button>
       <div id="advanced-mode" style="display:none;">
-        <p>Add a weighting for each stat. Remember this is final stat value and not number of rolls</p>
-        <input type="number" id="relic-hp-flat-weight" value="0"> Flat HP
-        <br><input type="number" id="relic-atk-flat-weight" value="0.07"> Flat Atk
-        <br><input type="number" id="relic-def-flat-weight" value="0"> Flat Def
-        <br><input type="number" id="relic-hp-perc-weight" value="0"> HP%
-        <br><input type="number" id="relic-atk-perc-weight" value="0.9"> Atk%
-        <br><input type="number" id="relic-def-perc-weight" value="0"> Def%
-        <br><input type="number" id="relic-spd-weight" value="0"> Speed
-        <br><input type="number" id="relic-cr-weight" value="2"> Crit Rate
-        <br><input type="number" id="relic-cd-weight" value="1"> Crit Damage
-        <br><input type="number" id="relic-ehr-weight" value="0"> Effect Hit Rate
-        <br><input type="number" id="relic-er-weight" value="0"> Effect Res
-        <br><input type="number" id="relic-be-weight" value="0"> Break Effect
-        <br><br><input type="number" id="daily-refreshes" value="0" min="0" max="8"> # of Daily Refreshes
+        <div id="weight-input">
+          <p>Add a weighting for each stat. Remember this is final stat value and not number of rolls</p>
+          <input type="number" id="relic-hp-flat-weight" value="0"> Flat HP
+          <br><input type="number" id="relic-atk-flat-weight" value="0.07"> Flat Atk
+          <br><input type="number" id="relic-def-flat-weight" value="0"> Flat Def
+          <br><input type="number" id="relic-hp-perc-weight" value="0"> HP%
+          <br><input type="number" id="relic-atk-perc-weight" value="0.9"> Atk%
+          <br><input type="number" id="relic-def-perc-weight" value="0"> Def%
+          <br><input type="number" id="relic-spd-weight" value="0"> Speed
+          <br><input type="number" id="relic-cr-weight" value="2"> Crit Rate
+          <br><input type="number" id="relic-cd-weight" value="1"> Crit Damage
+          <br><input type="number" id="relic-ehr-weight" value="0"> Effect Hit Rate
+          <br><input type="number" id="relic-er-weight" value="0"> Effect Res
+          <br><input type="number" id="relic-be-weight" value="0"> Break Effect
+          <br><br><input type="number" id="daily-refreshes" value="0" min="0" max="8"> # of Daily Refreshes
+        </div>
+        <div id="minimum-stat">
+          <p>Add a minimum stat to filter for relics with the specified stat or higher</p>
+          <input type="number" id="relic-spd-minimum" value="0"> Speed
+          <br><input type="number" id="relic-cr-minimum" value="0"> Crit Rate
+        </div>
       </div>
       <br><br>
       <div id="estimated-tb-power"></div>

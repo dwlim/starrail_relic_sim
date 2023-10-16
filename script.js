@@ -169,11 +169,23 @@ function generateRelic(sim, equip_type) {
 
 function filterRelics(piece, mainstat) {
     let piece_save = piece_options.indexOf(piece) > 3 ? planars_save : relics_save;
+    let piece_output = []
     if (piece && mainstat) {
-        return piece_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
+        piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.main_stat === mainstat) && (relic.set === "1"));
     } if (piece) {
-        return piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+        piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
     }
+    if (document.getElementById("relic-spd-minimum").value > 0) {
+        piece_output = piece_output.filter(relic => {
+            return relic.sub_stats["Spd"] && relic.sub_stats["Spd"] > document.getElementById("relic-spd-minimum").value;
+        });
+    }
+    if (document.getElementById("relic-cr-minimum").value > 0) {
+        piece_output = piece_output.filter(relic => {
+            return relic.sub_stats["CR"] && relic.sub_stats["CR"] > document.getElementById("relic-cr-minimum").value;
+        });
+    }
+    return piece_output;
 }
 
 function scoreRelics(relic_list, threshold) {
@@ -231,6 +243,7 @@ function estimateTBPower() {
     relic.push(document.getElementById("relic-be").value);
     var calculated_weight = weightRelic(relic);
     var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
+    // console.log(getStandardDeviation(scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), 0)));
     document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / (240 + 40 * document.getElementById("daily-refreshes").value));
     document.getElementById("estimated-craft").innerHTML = "Average Crafts Required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value).length / scores.length);
     document.getElementById("estimated-resin-craft").innerHTML = "Average Self Modeling Resin Crafts required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value).length / scores.length);
