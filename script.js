@@ -1,6 +1,7 @@
 var relics = [];
 var relics_save = [];
 var planars_save = [];
+var level_save = [];
 var trials_run = 0;
 
 for (var i = 0; i < piece_options.length; i++) {
@@ -53,7 +54,7 @@ function buildUI() {
                 const td2 = tr.insertCell();
 
                 td1.innerHTML = substat;
-                td2.innerHTML = element.sub_stats[substat].value;
+                td2.innerHTML = element.sub_stats[substat];
             }
         }
         const btn = document.createElement('button');
@@ -86,14 +87,15 @@ function simRelics() {
 
 function levelRelics(element, sim) {
     if (element.level >= 15) {
+        element.level = 15;
         return;
     }
     if (element.hidden) {
         element.hidden = null;
     } else {
         let sub_index = Object.keys(element.sub_stats)[Math.floor(Math.random() * 4)];
-        let level_increment = sub_stat_values[element.sub_stats[sub_index].index][Math.floor(Math.random() * 3)];
-        element.sub_stats[sub_index].value += level_increment;
+        let level_increment = sub_stat_values[sub_stat_options.indexOf(sub_index)][Math.floor(Math.random() * 3)];
+        element.sub_stats[sub_index] += level_increment;
     }
     element.level += 3;
     if (!sim) {
@@ -114,7 +116,7 @@ function generateRelic(sim, equip_type) {
         let piece = equip_type === "planar" ? getRandomInt(4, 5) : getRandomInt(0, 3);
         item.name = piece_options[piece];
         item.main_stat = wsample(main_stat_options[piece][0], main_stat_options[piece][1], 1)[1][0];
-        item.sub_stats = [];
+        item.sub_stats = {};
         item.level = 0;
 
         let main_index = main_stat_options[piece][0].indexOf(item.main_stat);
@@ -129,7 +131,7 @@ function generateRelic(sim, equip_type) {
                 }
             }
             fourth_sub = wsample(sub_stat_options, fourth_weight, 1);
-            sub = [first_three_sub[0].concat(fourth_sub[0]), first_three_sub[1].concat(fourth_sub[1])]
+            sub = [first_three_sub[0].concat(fourth_sub[0]), first_three_sub[1].concat(fourth_sub[1])];
             if (!sim) {
                 item.hidden = sub[1][3];
             } else {
@@ -140,10 +142,8 @@ function generateRelic(sim, equip_type) {
         }
 
         for (let i = 0; i < sub[0].length; i++) {
-            var subs = {};
             var stat = sub[1][i];
-            subs.index = sub[0][i];
-            subs.value = sub_stat_values[sub[0][i]][Math.floor(Math.random() * 3)];
+            var subs = sub_stat_values[sub[0][i]][Math.floor(Math.random() * 3)];
             item.sub_stats[stat] = subs;
         }
 
@@ -160,12 +160,9 @@ function generateRelic(sim, equip_type) {
     }
 }
 
-function filterRelics(piece, mainstat) {
-    console.log(mainstat);
-    let piece_save = piece_options.indexOf(piece) > 3 ? planars_save : relics_save;
-    let piece_output = []
-
-    piece_output = piece_save.filter(relic => (relic.name == piece) && (relic.set === "1"));
+function filterRelics(piece_save, piece, mainstat) {
+    let piece_output = [];
+    piece_output = piece_save.filter(relic => (relic.name === piece) && (relic.set === "1"));
     if (mainstat) {
         piece_output = piece_output.filter(relic => (relic.main_stat === mainstat));
     }
@@ -179,7 +176,6 @@ function filterRelics(piece, mainstat) {
             return relic.sub_stats["CR"] && relic.sub_stats["CR"] > document.getElementById("relic-cr-minimum").value;
         });
     }
-    console.log(piece_output);
     return piece_output;
 }
 
@@ -188,18 +184,18 @@ function scoreRelics(relic_list, threshold) {
     for (let i = 0; i < relic_list.length; i++) {
         let score = relic_list[i].sub_stats;
         let i_relic = [];
-        i_relic.push([score["Hp"] ? score["Hp"].value : 0]);
-        i_relic.push([score["Atk"] ? score["Atk"].value : 0]);
-        i_relic.push([score["Def"] ? score["Def"].value : 0]);
-        i_relic.push([score["Hp%"] ? score["Hp%"].value : 0]);
-        i_relic.push([score["Atk%"] ? score["Atk%"].value : 0]);
-        i_relic.push([score["Def%"] ? score["Def%"].value : 0]);
-        i_relic.push([score["Spd"] ? score["Spd"].value : 0]);
-        i_relic.push([score["CR"] ? score["CR"].value : 0]);
-        i_relic.push([score["CD"] ? score["CD"].value : 0]);
-        i_relic.push([score["EHR"] ? score["EHR"].value : 0]);
-        i_relic.push([score["ER"] ? score["ER"].value : 0]);
-        i_relic.push([score["BE"] ? score["BE"].value : 0]);
+        i_relic.push([score["Hp"] ? score["Hp"] : 0]);
+        i_relic.push([score["Atk"] ? score["Atk"] : 0]);
+        i_relic.push([score["Def"] ? score["Def"] : 0]);
+        i_relic.push([score["Hp%"] ? score["Hp%"] : 0]);
+        i_relic.push([score["Atk%"] ? score["Atk%"] : 0]);
+        i_relic.push([score["Def%"] ? score["Def%"] : 0]);
+        i_relic.push([score["Spd"] ? score["Spd"] : 0]);
+        i_relic.push([score["CR"] ? score["CR"] : 0]);
+        i_relic.push([score["CD"] ? score["CD"] : 0]);
+        i_relic.push([score["EHR"] ? score["EHR"] : 0]);
+        i_relic.push([score["ER"] ? score["ER"] : 0]);
+        i_relic.push([score["BE"] ? score["BE"] : 0]);
         effective_score.push(weightRelic(i_relic));
     }
     return effective_score.filter(s => s >= threshold);
@@ -237,9 +233,109 @@ function estimateTBPower() {
     relic.push(document.getElementById("relic-er").value);
     relic.push(document.getElementById("relic-be").value);
     var calculated_weight = weightRelic(relic);
-    var scores = scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
+    let piece_save = piece_options.indexOf(document.getElementById("piece-names").value) > 3 ? planars_save : relics_save;
+    var scores = scoreRelics(filterRelics(piece_save, document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
     // console.log(getStandardDeviation(scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), 0)));
     document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / (240 + 40 * document.getElementById("daily-refreshes").value));
-    document.getElementById("estimated-craft").innerHTML = "Average Crafts Required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value).length / scores.length);
-    document.getElementById("estimated-resin-craft").innerHTML = "Average Self Modeling Resin Crafts required: " + Math.ceil(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value).length / scores.length);
+    document.getElementById("estimated-craft").innerHTML = "Average Crafts Required: " + Math.ceil(filterRelics(piece_save, document.getElementById("piece-names").value).length / scores.length);
+    document.getElementById("estimated-resin-craft").innerHTML = "Average Self Modeling Resin Crafts required: " + Math.ceil(filterRelics(piece_save, document.getElementById("piece-names").value, document.getElementById("main-stat-names").value).length / scores.length);
+}
+
+function simRelicLevels() {
+    let testRelic = {};
+    testRelic.name = document.getElementById("piece-names").value;
+    testRelic.main_stat = document.getElementById("main-stat-names").value;
+    testRelic.level = parseFloat(document.getElementById("relic-level-level").value);
+    testRelic.sub_stats = {};
+    testRelic.set = "1";
+    if (document.getElementById("relic-hp-flat-level").value > 0) {
+        testRelic.sub_stats["Hp"] = parseFloat(document.getElementById("relic-hp-flat-level").value);
+    }
+    if (document.getElementById("relic-atk-flat-level").value > 0) {
+        testRelic.sub_stats["Atk"] = parseFloat(document.getElementById("relic-atk-flat-level").value);
+    }
+    if (document.getElementById("relic-def-flat-level").value > 0) {
+        testRelic.sub_stats["Def"] = parseFloat(document.getElementById("relic-def-flat-level").value);
+    }
+    if (document.getElementById("relic-hp-perc-level").value > 0) {
+        testRelic.sub_stats["Hp%"] = parseFloat(document.getElementById("relic-hp-perc-level").value);
+    }
+    if (document.getElementById("relic-atk-perc-level").value > 0) {
+        testRelic.sub_stats["Atk%"] = parseFloat(document.getElementById("relic-atk-perc-level").value);
+    }
+    if (document.getElementById("relic-def-perc-level").value > 0) {
+        testRelic.sub_stats["Def%"] = parseFloat(document.getElementById("relic-def-perc-level").value);
+    }
+    if (document.getElementById("relic-spd-level").value > 0) {
+        testRelic.sub_stats["Spd"] = parseFloat(document.getElementById("relic-spd-level").value);
+    }
+    if (document.getElementById("relic-cr-level").value > 0) {
+        testRelic.sub_stats["CR"] = parseFloat(document.getElementById("relic-cr-level").value);
+    }
+    if (document.getElementById("relic-cd-level").value > 0) {
+        testRelic.sub_stats["CD"] = parseFloat(document.getElementById("relic-cd-level").value);
+    }
+    if (document.getElementById("relic-ehr-level").value > 0) {
+        testRelic.sub_stats["EHR"] = parseFloat(document.getElementById("relic-ehr-level").value);
+    }
+    if (document.getElementById("relic-er-level").value > 0) {
+        testRelic.sub_stats["ER"] = parseFloat(document.getElementById("relic-er-level").value);
+    }
+    if (document.getElementById("relic-be-level").value > 0) {
+        testRelic.sub_stats["BE"] = parseFloat(document.getElementById("relic-be-level").value);
+    }
+    if (Object.keys(testRelic.sub_stats).length === 3 && testRelic.level === 0){
+        for (var i = 0; i < sim_trials; i++) {
+            let copyTestRelic = structuredClone(testRelic);
+
+            first_three_sub = [];
+            for (const s_index of Object.keys(copyTestRelic.sub_stats)) {
+                first_three_sub.push(sub_stat_options.indexOf(s_index));
+            }
+            fourth_weight = [...base_sub_stat_weight];
+            exclude_index = [sub_stat_options.indexOf(copyTestRelic.main_stat)].concat(first_three_sub);
+            for (const index of exclude_index) {
+                if (index >= 0) {
+                    fourth_weight[index] = 0;
+                }
+            }
+            fourth_sub = wsample(sub_stat_options, fourth_weight, 1);
+            var stat = fourth_sub[1];
+            var subs = sub_stat_values[fourth_sub[0]][Math.floor(Math.random() * 3)];
+            copyTestRelic.sub_stats[stat] = subs;
+            copyTestRelic.level = 3;
+            
+            const res = [...Array(4)].map((_, i) => levelRelics(copyTestRelic, true));
+            level_save.push(copyTestRelic);
+        }
+    } else if (Object.keys(testRelic.sub_stats).length === 4){
+        for (var i = 0; i < sim_trials; i++) {
+            let copyTestRelic = structuredClone(testRelic);
+            const res = [...Array(5)].map((_, i) => levelRelics(copyTestRelic, true));
+            level_save.push(copyTestRelic);
+        }
+    }
+
+    document.getElementById("level-sims").innerHTML = "You have " + level_save.length + " level sims run."
+}
+
+function estimateLevelChances() {
+    var relic = [];
+    relic.push(document.getElementById("relic-hp-flat").value);
+    relic.push(document.getElementById("relic-atk-flat").value);
+    relic.push(document.getElementById("relic-def-flat").value);
+    relic.push(document.getElementById("relic-hp-perc").value);
+    relic.push(document.getElementById("relic-atk-perc").value);
+    relic.push(document.getElementById("relic-def-perc").value);
+    relic.push(document.getElementById("relic-spd").value);
+    relic.push(document.getElementById("relic-cr").value);
+    relic.push(document.getElementById("relic-cd").value);
+    relic.push(document.getElementById("relic-ehr").value);
+    relic.push(document.getElementById("relic-er").value);
+    relic.push(document.getElementById("relic-be").value);
+    var calculated_weight = weightRelic(relic);
+    var scores = scoreRelics(filterRelics(level_save, document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), calculated_weight);
+    document.getElementById("level-probability").innerHTML = "Probability of improving is " + (scores.length / level_save.length);
+    // console.log(getStandardDeviation(scoreRelics(filterRelics(document.getElementById("piece-names").value, document.getElementById("main-stat-names").value), 0)));
+    // document.getElementById("estimated-tb-power").innerHTML = "Average TB Power: " + Math.ceil(trials_run / scores.length * 40) + " or Days: " + Math.ceil(trials_run / scores.length * 40 / (240 + 40 * document.getElementById("daily-refreshes").value));
 }

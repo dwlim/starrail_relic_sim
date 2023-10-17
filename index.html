@@ -67,6 +67,26 @@
           <input type="number" id="relic-spd-minimum" value="0"> Speed
           <br><input type="number" id="relic-cr-minimum" value="0"> Crit Rate
         </div>
+        <div id="level-sim">
+          <p>Add your current relic stats and level</p>
+          <input type="number" id="relic-hp-flat-level" value="0"> Flat HP
+          <br><input type="number" id="relic-atk-flat-level" value="0"> Flat Atk
+          <br><input type="number" id="relic-def-flat-level" value="0"> Flat Def
+          <br><input type="number" id="relic-hp-perc-level" value="0"> HP%
+          <br><input type="number" id="relic-atk-perc-level" value="0"> Atk%
+          <br><input type="number" id="relic-def-perc-level" value="0"> Def%
+          <br><input type="number" id="relic-spd-level" value="0"> Speed
+          <br><input type="number" id="relic-cr-level" value="0"> Crit Rate
+          <br><input type="number" id="relic-cd-level" value="0"> Crit Damage
+          <br><input type="number" id="relic-ehr-level" value="0"> Effect Hit Rate
+          <br><input type="number" id="relic-er-level" value="0"> Effect Res
+          <br><input type="number" id="relic-be-level" value="0"> Break Effect
+          <br><br><input type="number" id="relic-level-level" value="0" min="0" max="15"> Level
+          <br><button onclick="simRelicLevels()">Level SIM</button>
+          <div id="level-sims"></div>
+          <br><button onclick="estimateLevelChances()">Estimate probability of leveling a good piece</button>
+          <div id="level-probability"></div>
+        </div>
       </div>
       <br><br>
       <div id="estimated-tb-power"></div>
